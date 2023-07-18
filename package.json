@@ -1,0 +1,14 @@
+{
+  "name": "cypress-discord-reporter",
+  "version": "1.0.0",
+  "description": "Discord Webhook reports for Cypress test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cypress"
+  ],
+  "author": "Selman Tanis",
+  "license": "MIT"
+}
