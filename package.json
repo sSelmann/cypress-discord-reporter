@@ -12,6 +12,7 @@
   "author": "Selman Tanis",
   "license": "MIT",
   "dependencies": {
+    "discord.js": "^14.11.0",
     "fs": "^0.0.1-security"
   }
 }

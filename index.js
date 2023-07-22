@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { EmbedBuilder } = require('discord.js');
 
 async function sendDiscordWebhook(resultJSONFile) {
     try {
@@ -25,7 +26,26 @@ async function sendDiscordWebhook(resultJSONFile) {
         const testPendingCount = resultData.stats.pending;
         const testFailuresCount = resultData.stats.failures;
 
-        console.log(suitesCount, testCount, testPassesCount)
+        const embed = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setTitle(title)
+        .setAuthor({
+          name: 'Cypress Discord Reporter',
+          iconURL: 'https://i.imgur.com/KRxtcos.jpeg',
+          url: 'https://github.com/sSelmann/Cypress-Discord-Reporter'
+        })
+        .setDescription('Test Results')
+        .addFields(
+          { name: 'Duration :clock4:', value: duration.toString(), inline: true },
+          { name: 'Suites :card_box:', value: suitesCount.toString(), inline: true },
+          { name: 'Tests :bookmark_tabs:', value: testCount.toString(), inline: true },
+        )
+        .addFields(
+          { name: 'Passes :white_check_mark:', value: testPassesCount.toString(), inline: true },
+          { name: 'Pending :hourglass_flowing_sand:', value: testPendingCount.toString(), inline: true },
+          { name: 'Failures :x:', value: testFailuresCount.toString(), inline: true },
+        )
+        .setTimestamp();
 
         
     } catch (err) {
