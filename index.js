@@ -1,7 +1,9 @@
 const fs = require('fs');
+const axios = require('axios');
+const FormData = require('form-data');
 const { EmbedBuilder } = require('discord.js');
 
-async function sendDiscordWebhook(resultJSONFile) {
+async function sendDiscordWebhook(webhookUrl, resultJSONFile) {
     try {
         const data = await fs.promises.readFile(resultJSONFile, 'utf8');
         const resultData = JSON.parse(data);
@@ -47,7 +49,24 @@ async function sendDiscordWebhook(resultJSONFile) {
         )
         .setTimestamp();
 
-        
+        const form = new FormData();
+        form.append('payload_json', JSON.stringify({ embeds: [embed] }));
+    
+        files.forEach((file, index) => {
+          const fileStream = fs.createReadStream(file);
+          form.append(`file${index}`, fileStream);
+        });
+    
+        try {
+          await axios.post(webhookUrl, form, {
+            headers: {
+              ...form.getHeaders(),
+            },
+          });
+        } catch (error) {
+          console.error('Error:', error.message);
+        }
+
     } catch (err) {
         console.error('Error reading or parsing file:', err);
     }
