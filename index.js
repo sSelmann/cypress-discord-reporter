@@ -3,7 +3,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const { EmbedBuilder } = require('discord.js');
 
-async function sendDiscordWebhook(webhookUrl, resultJSONFile) {
+async function sendDiscordWebhook(webhookUrl, resultJSONFile, title, attachFiles) {
     try {
         const data = await fs.promises.readFile(resultJSONFile, 'utf8');
         const resultData = JSON.parse(data);
@@ -71,7 +71,7 @@ async function sendDiscordWebhook(webhookUrl, resultJSONFile) {
         const form = new FormData();
         form.append('payload_json', JSON.stringify({ embeds: [embed] }));
 
-        files.forEach((file, index) => {
+        attachFiles.forEach((file, index) => {
             const fileStream = fs.createReadStream(file);
             form.append(`file${index}`, fileStream);
         });
