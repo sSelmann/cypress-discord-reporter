@@ -61,6 +61,12 @@ async function sendDiscordWebhook(webhookUrl, attachFiles, resultJSONFile, title
             )
             .setTimestamp();
 
+        if (testFailuresCount > 0) {
+            embed.setColor(0x5eff00);
+        } else {
+            embed.setColor(0x4CA31A);
+        }
+
         const testResults = extractTestResults(resultData);
 
         for (const { suiteTitle, test } of testResults) {
