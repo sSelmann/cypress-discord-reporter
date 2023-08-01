@@ -3,24 +3,36 @@ const axios = require('axios');
 const FormData = require('form-data');
 const { EmbedBuilder } = require('discord.js');
 
-async function sendDiscordWebhook(webhookUrl, resultJSONFile, title, attachFiles) {
+
+function formatDuration(duration) {
+    return duration > 60000 ? `${duration / 60000}m` : `${duration / 1000}s`;
+}
+
+function extractTestResults(resultData) {
+    const testResults = [];
+    for (const result of resultData.results) {
+        for (const suite of result.suites) {
+            const suiteTitle = suite.title;
+            let test = '';
+            for (const testItem of suite.tests) {
+                const testTitle = testItem.title;
+                const testStatus = testItem.state;
+                test += `:receipt: **${testTitle}** ${testStatus === 'passed' ? '✅' : testStatus === 'pending' ? '⏳' : '❌'}\n`;
+            }
+            testResults.push({ suiteTitle, test });
+        }
+    }
+    return testResults;
+}
+
+async function sendDiscordWebhook(webhookUrl, attachFiles, resultJSONFile, title) {
     try {
         const data = await fs.promises.readFile(resultJSONFile, 'utf8');
         const resultData = JSON.parse(data);
 
         console.log(resultData);
 
-        const passesArray = resultData.results[0].suites[0].title;
-        console.log(passesArray);
-
-        let duration = resultData.stats.duration;
-        if (duration > 60000) {
-            duration = duration / 60000;
-            duration += 'm';
-        } else {
-            duration = duration / 1000;
-            duration += 's';
-        }
+        const duration = formatDuration(resultData.stats.duration);
 
         const suitesCount = resultData.stats.suites;
         const testCount = resultData.stats.tests;
@@ -29,19 +41,19 @@ async function sendDiscordWebhook(webhookUrl, resultJSONFile, title, attachFiles
         const testFailuresCount = resultData.stats.failures;
 
         const embed = new EmbedBuilder()
-            .setColor(0x0099FF)
+            .setColor(0x5eff00)
             .setTitle(title)
             .setAuthor({
                 name: 'Cypress Discord Reporter',
                 iconURL: 'https://i.imgur.com/KRxtcos.jpeg',
                 url: 'https://github.com/sSelmann/Cypress-Discord-Reporter'
             })
-            .setDescription('Test Results')
             .addFields(
-                { name: 'Duration :clock4:', value: duration.toString(), inline: true },
+                { name: 'Duration :clock4:', value: duration, inline: true },
                 { name: 'Suites :card_box:', value: suitesCount.toString(), inline: true },
                 { name: 'Tests :bookmark_tabs:', value: testCount.toString(), inline: true },
             )
+            .setThumbnail('https://habborator.org/archive/Frank/frank_08.gif')
             .addFields(
                 { name: 'Passes :white_check_mark:', value: testPassesCount.toString(), inline: true },
                 { name: 'Pending :hourglass_flowing_sand:', value: testPendingCount.toString(), inline: true },
@@ -49,32 +61,21 @@ async function sendDiscordWebhook(webhookUrl, resultJSONFile, title, attachFiles
             )
             .setTimestamp();
 
-        for (let index = 0; index < resultFile.results.length; index++) {
-            for (let index1 = 0; index1 < resultFile.results[index].suites.length; index1++) {
-                const suiteTitle = resultFile.results[index].suites[index1].title;
-                let test = '';
+        const testResults = extractTestResults(resultData);
 
-                for (let index2 = 0; index2 < resultFile.results[index].suites[index1].tests.length; index2++) {
-                    const testTitle = resultFile.results[index].suites[index1].tests[index2].title;
-                    console.log(testTitle);
-                    const teststatus = resultFile.results[index].suites[index1].tests[index2].state;
-
-                    test += ':receipt: **' + testTitle + '** ' + (teststatus === 'passed' ? '✅' : teststatus === 'pending' ? '⏳' : '❌') + '\n';
-
-                }
-                embed.addFields(
-                    { name: '**' + suiteTitle + '**', value: test }
-                );
-            }
+        for (const { suiteTitle, test } of testResults) {
+            embed.addFields(
+                { name: `**${suiteTitle}**`, value: test }
+            );
         }
 
         const form = new FormData();
         form.append('payload_json', JSON.stringify({ embeds: [embed] }));
 
-        attachFiles.forEach((file, index) => {
-            const fileStream = fs.createReadStream(file);
+        for (let index = 0; index < attachFiles.length; index++) {
+            const fileStream = fs.createReadStream(attachFiles[index]);
             form.append(`file${index}`, fileStream);
-        });
+        }
 
         try {
             await axios.post(webhookUrl, form, {
@@ -90,4 +91,5 @@ async function sendDiscordWebhook(webhookUrl, resultJSONFile, title, attachFiles
         console.error('Error reading or parsing file:', err);
     }
 }
+
 module.exports = sendDiscordWebhook;
