@@ -1,8 +1,9 @@
 const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
-const { EmbedBuilder } = require('discord.js');
-
+const Chart = require('chart.js/auto');
+const { createCanvas } = require('canvas');
+const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
 
 function formatDuration(duration) {
     return duration > 60000 ? `${duration / 60000}m` : `${duration / 1000}s`;
@@ -25,12 +26,32 @@ function extractTestResults(resultData) {
     return testResults;
 }
 
-async function sendDiscordWebhook(webhookUrl, attachFiles, resultJSONFile, title) {
+function drawDonutChart(successPercentage, failurePercentage) {
+    const width = 100;
+    const height = 100;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [successPercentage, failurePercentage],
+                backgroundColor: ['green', 'red'],
+                borderColor: '#2b2d31'
+            }]
+        }
+    });
+
+    const buffer = canvas.toBuffer('image/png');
+    fs.writeFileSync('./chart.png', buffer);
+}
+
+async function sendDiscordWebhook(webhookUrl, resultJSONFile, title) {
     try {
         const data = await fs.promises.readFile(resultJSONFile, 'utf8');
         const resultData = JSON.parse(data);
-
-        console.log(resultData);
+        const attachFiles = [];
 
         const duration = formatDuration(resultData.stats.duration);
 
@@ -39,6 +60,14 @@ async function sendDiscordWebhook(webhookUrl, attachFiles, resultJSONFile, title
         const testPassesCount = resultData.stats.passes;
         const testPendingCount = resultData.stats.pending;
         const testFailuresCount = resultData.stats.failures;
+
+        const successPercentage = (testPassesCount / testCount) * 100;
+        const failurePercentage = (testFailuresCount / testCount) * 100;
+
+        drawDonutChart(successPercentage, failurePercentage);
+
+        new AttachmentBuilder('./chart.png');
+        attachFiles.push('./chart.png');
 
         const embed = new EmbedBuilder()
             .setColor(0x5eff00)
@@ -53,18 +82,18 @@ async function sendDiscordWebhook(webhookUrl, attachFiles, resultJSONFile, title
                 { name: 'Suites :card_box:', value: suitesCount.toString(), inline: true },
                 { name: 'Tests :bookmark_tabs:', value: testCount.toString(), inline: true },
             )
-            .setThumbnail('https://habborator.org/archive/Frank/frank_08.gif')
             .addFields(
                 { name: 'Passes :white_check_mark:', value: testPassesCount.toString(), inline: true },
                 { name: 'Pending :hourglass_flowing_sand:', value: testPendingCount.toString(), inline: true },
                 { name: 'Failures :x:', value: testFailuresCount.toString(), inline: true },
             )
+            .setThumbnail('attachment://chart.png')
             .setTimestamp();
 
         if (testFailuresCount > 0) {
-            embed.setColor(0x5eff00);
+            embed.setColor("Red");
         } else {
-            embed.setColor(0x4CA31A);
+            embed.setColor("Green");
         }
 
         const testResults = extractTestResults(resultData);
@@ -95,6 +124,16 @@ async function sendDiscordWebhook(webhookUrl, attachFiles, resultJSONFile, title
 
     } catch (err) {
         console.error('Error reading or parsing file:', err);
+    } finally {
+        // SVG dosyasını silme
+
+        fs.unlink('./chart.png', (err) => {
+            if (err) {
+                console.error('Error deleting png file:', err);
+            } else {
+                console.log('SVG file deleted.');
+            }
+        });
     }
 }
 

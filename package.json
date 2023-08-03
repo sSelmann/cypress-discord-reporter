@@ -12,6 +12,8 @@
   "author": "Selman Tanis",
   "license": "MIT",
   "dependencies": {
+    "canvas": "^2.11.2",
+    "chart.js": "^4.3.3",
     "discord.js": "^14.11.0",
     "form-data": "^4.0.0",
     "fs": "^0.0.1-security"
