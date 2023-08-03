@@ -1,6 +1,9 @@
-# cpyress-discord-reporter
-<img align="right" src="https://imgur.com/sDZSmDC.png" alt="Mochawesome Report" width="45%" />
+# cypress-discord-reporter
+<img align="right" src="https://imgur.com/sDZSmDC.png" alt="Mochawesome Report" width="50%" />
 This package sends Mochawesome test results to Discord channel via Discord Webhook.
+<br />
+<br />
+<a href="https://www.npmjs.com/package/@sselmann/cypress-discord-reporter"><img src="https://static.npmjs.com/b0f1a8318363185cc2ea6a40ac23eeb2.png"></a> <a href="https://github.com/sSelmann/Cypress-Discord-Reporter"><img src="https://github.githubassets.com/favicons/favicon.png" style="background: white"></a>
 
 ## Install
 
@@ -99,5 +102,3 @@ or
     npx cypress run
 
 After the test process is finished, the report will appear on the discord channel.
-
-<a href="https://www.npmjs.com/package/@sselmann/cypress-discord-reporter"><img src="https://static.npmjs.com/b0f1a8318363185cc2ea6a40ac23eeb2.png"></a> <a href="https://github.com/sSelmann/Cypress-Discord-Reporter"><img src="https://github.githubassets.com/favicons/favicon.png" style="background: white"></a>
