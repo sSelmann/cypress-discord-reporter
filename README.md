@@ -1,5 +1,5 @@
 # cypress-discord-reporter
-<img align="right" src="https://imgur.com/sDZSmDC.png" alt="Mochawesome Report" width="50%" />
+<img align="right" src="https://imgur.com/sDZSmDC.png" alt="Mochawesome Report" width="46%" />
 This package sends Mochawesome test results to Discord channel via Discord Webhook.
 <br />
 <br />
