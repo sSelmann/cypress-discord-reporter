@@ -125,13 +125,9 @@ async function sendDiscordWebhook(webhookUrl, resultJSONFile, title) {
     } catch (err) {
         console.error('Error reading or parsing file:', err);
     } finally {
-        // SVG dosyasını silme
-
         fs.unlink('./chart.png', (err) => {
             if (err) {
                 console.error('Error deleting png file:', err);
-            } else {
-                console.log('SVG file deleted.');
             }
         });
     }
