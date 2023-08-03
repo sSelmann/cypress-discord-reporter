@@ -1,16 +1,23 @@
 {
-  "name": "cypress-discord-reporter",
+  "name": "@sselmann/cypress-discord-reporter",
   "version": "1.0.0",
-  "description": "Discord Webhook reports for Cypress test",
+  "description": "Discord Webhook reports for Cypress tests",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sSelmann/Cypress-Discord-Reporter.git"
   },
   "keywords": [
-    "cypress"
+    "cypress",
+    "discord",
+    "reporter"
   ],
   "author": "Selman Tanis",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sSelmann/Cypress-Discord-Reporter/issues"
+  },
+  "homepage": "https://github.com/sSelmann/Cypress-Discord-Reporter#readme",
   "dependencies": {
     "canvas": "^2.11.2",
     "chart.js": "^4.3.3",
